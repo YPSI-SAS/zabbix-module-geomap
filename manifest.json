@@ -1,0 +1,16 @@
+{
+    "manifest_version": 1.0,
+    "id": "geomap",
+    "name": "Geomap hosts",
+    "version": "1.0.0",
+    "namespace": "GeomapHosts",
+    "author": "Mélissa Bertin",
+    "url": "https://www.ypsi.fr/",
+    "description": "Show geomap hosts and clusters",
+    "actions": {
+        "geomaphost.view": {
+            "class": "CControllerGeomapHostView",
+            "view": "module.monitoring.geomaphost.view"
+        }
+    }
+}
