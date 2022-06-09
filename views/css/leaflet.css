@@ -755,3 +755,58 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	margin-left: -12px;
 	border-right-color: #fff;
 }
+
+
+.geomap-filter-button {
+	background-image: url("icon-sprite.svg?20211222");
+	background-repeat: no-repeat;
+}
+
+.geomap-filter-button {
+	background-position: -243px -543px !important;
+}
+
+
+.geomap-filter {
+	border: 2px solid rgba(223, 228, 231, 0.4);
+	background-color: #ffffff;
+	padding: 10px 30px 5px 10px;
+	position: absolute;
+	margin-right: -2px;
+	margin-top: 5px;
+	display: none;
+	right: 0;
+}
+
+.geomap-filter.collapsed {
+	display: table;
+}
+
+.geomap-filter li {
+	width: calc(100% + 20px);
+}
+
+.geomap-filter label {
+	white-space: nowrap;
+}
+
+.checkbox-list li {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 20px;
+}
+
+.checkbox-list li label {
+	line-height: 16px;
+	vertical-align: bottom;
+}
+
+.leaflet-control.disabled {
+	background-color: #ffffff;
+	opacity: 1;
+}
+
+.leaflet-control.disabled .geomap-filter-button {
+	cursor: default;
+	opacity: .4;
+}

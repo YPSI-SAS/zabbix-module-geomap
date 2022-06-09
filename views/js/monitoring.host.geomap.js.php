@@ -239,8 +239,6 @@
         max_severity=-1;
       }
 
-      console.log(max_severity.toString())
-      console.log(severity_filter)
       if(severity_filter.includes(max_severity.toString())){
         const host = {
           'name': data[i]['name'],
