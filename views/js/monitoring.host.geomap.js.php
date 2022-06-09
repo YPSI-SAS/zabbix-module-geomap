@@ -14,38 +14,144 @@
 	var SEVERITY_AVERAGE = 3;
 	var SEVERITY_HIGH = 4;
 	var SEVERITY_DISASTER = 5;
-	// Transfer information about groups from PHP into JavaScript data Object
-	var data = <?php
-		echo json_encode($data['hosts']); ?>;
 
   $('head').append('<link rel="stylesheet" type="text/css" href="modules/zabbix-module-geomap/views/css/leaflet.css"/>');
   $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Leaflet/leaflet.js"/>');
   $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Leaflet/leaflet.markercluster.js"/>');
 
-	
+  var url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var data = <?php
+		  echo json_encode($data['hosts']); ?>;
+    
   var map = L.map('map').setView([46.2757268, 0.4013979],8 ); 
     //'http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}'
-    L.tileLayer( 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' , {
+  L.tileLayer( url , {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap  </a>&copy; <a href="https://www.ypsi.fr/">YPSI</a>',
     //subdomains: ['mt0','mt1','mt2','mt3'],
     maxZoom: 19,
     minZoom:3,
     noWrap: true
   }).addTo( map );
-  
-  
+
+  L.Map.include({
+    updateFilter: function (filter_data) {
+      this.getContainer().dispatchEvent(new CustomEvent('filter', { detail: filter_data }));
+    },
+
+    elmntCounter: (function () {
+      let static = 0;
+      return function () {
+        return ++static;
+      }
+    })()
+  });
 
   let val = initSeverities();
   var severity_levels = val[0], icons = val[1];
 
-  var marker_clusters = initMarker(severity_levels, icons, data, map);
+  initMarker(severity_levels, icons, data, map, ["-1","0","1","2","3","4","5"]);
+  initFilter(map, severity_levels);  
+
+  
+  function initFilter(map, severity_levels){
+    L.Control.severityControlControl = L.Control.extend({
+
+    _severity_levels: null,
+    _filter_checked: [],
+
+    initialize: function({checked, severity_levels, disabled}) {
+      this._filter_checked = checked;
+      this._severity_levels = severity_levels;
+      this._disabled = disabled;
+    },
+
+    onAdd: function(map) {
+      const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      const btn = L.DomUtil.create('a', 'geomap-filter-button', div);
+      this.bar = L.DomUtil.create('ul', 'checkbox-list geomap-filter', div);
+
+      btn.ariaLabel = t('Severity filter');
+      btn.title = t('Severity filter');
+      btn.role = 'button';
+      btn.href = '#';
+
+      if (!this._disabled) {
+        for (const [severity, prop] of this._severity_levels) {
+          const li = L.DomUtil.create('li', '', this.bar);
+          const chbox = L.DomUtil.create('input', '', li);
+          const label = L.DomUtil.create('label', '', li);
+          const span = L.DomUtil.create('span', '');
+          const chBoxId = 'filter_severity_' + map.elmntCounter();
+
+          label.append(span, document.createTextNode(prop.name));
+          chbox.checked = this._filter_checked.includes(severity.toString(10));
+          chbox.classList.add('checkbox-radio');
+          chbox.type = 'checkbox';
+          chbox.value = severity;
+          chbox.id = chBoxId;
+          label.htmlFor = chBoxId;
+        }
+
+        L.DomEvent.on(btn, 'click', () => {this.bar.classList.toggle('collapsed')});
+        L.DomEvent.on(this.bar, 'dblclick', (e) => {L.DomEvent.stopPropagation(e)});
+        L.DomEvent.on(div, 'change', () => {
+          map.updateFilter([...this.bar.querySelectorAll('input[type="checkbox"]:checked')].map(n => n.value));
+        });
+      }
+      else {
+        div.classList.add('disabled');
+      }
+
+      L.DomEvent.on(btn, 'dblclick', (e) => {L.DomEvent.stopPropagation(e)});
+
+      return div;
+    },
+
+    close: function() {
+      this.bar.classList.remove('collapsed');
+    }
+    });
+
+    L.control.severityControl = function(opts) {
+    return new L.Control.severityControlControl(opts);
+    };
+
+    map.severityFilterControl = L.control.severityControl({
+      position: 'topright',
+      checked: [],
+      severity_levels: severity_levels,
+      disabled: false
+    }).addTo(map);
+
+    map.getContainer().addEventListener('click', (e) => {
+    if (e.target.classList.contains('leaflet-container')) {
+      map.severityFilterControl.close();
+    }
+    }, false);
+
+    map.getContainer().addEventListener('filter', (e) => {
+      if(e.detail.length == 0){
+        updateMap(["-1","0","1","2","3","4","5"])
+      }else{
+        updateMap(e.detail)
+      }
+      
+    }, false);
+  }
+
+  function updateMap(severity_filter){
+    map.eachLayer(function (layer) {
+        if (url != layer._url){map.removeLayer(layer)};
+    });
+    initMarker(severity_levels, icons, data, map, severity_filter);
+  }
 
   function onClickMarker(e) {
     map.setView(this.getLatLng(), 14);
   }
 
 
-  function initMarker(severity_levels, icons, data, map) {
+  function initMarker(severity_levels, icons, data, map, severity_filter) {
     var marker_clusters = L.markerClusterGroup({
       iconCreateFunction: function(cluster){
         const markers = cluster.getAllChildMarkers();
@@ -133,27 +239,31 @@
         max_severity=-1;
       }
 
-      const host = {
-        'name': data[i]['name'],
-        0: nb_not_classified,
-        1: nb_information,
-        2: nb_warning,
-        3: nb_average,
-        4: nb_high,
-        5: nb_disaster
-      }
-      
-      const popup = makePopupContent([host], severity_levels)
-      var m = L.marker( [data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon']], {icon: icons[max_severity], className: severity_levels.get(max_severity).classMarker, hostVal: host})
-							.bindPopup( popup ).on('click', onClickMarker);
+      console.log(max_severity.toString())
+      console.log(severity_filter)
+      if(severity_filter.includes(max_severity.toString())){
+        const host = {
+          'name': data[i]['name'],
+          0: nb_not_classified,
+          1: nb_information,
+          2: nb_warning,
+          3: nb_average,
+          4: nb_high,
+          5: nb_disaster
+        }
+        
+        const popup = makePopupContent([host], severity_levels)
+        var m = L.marker( [data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon']], {icon: icons[max_severity], className: severity_levels.get(max_severity).classMarker, hostVal: host})
+                .bindPopup( popup ).on('click', onClickMarker);
 
-      m.on("mouseover", function(e){
-        this.openPopup();
-      });
-      m.on("mouseout", function(e){
-        this.closePopup();
-      });
-      marker_clusters.addLayer(m);
+        m.on("mouseover", function(e){
+          this.openPopup();
+        });
+        m.on("mouseout", function(e){
+          this.closePopup();
+        });
+        marker_clusters.addLayer(m);
+      }
     }
 
     marker_clusters.on('clustermouseover', function(c) {

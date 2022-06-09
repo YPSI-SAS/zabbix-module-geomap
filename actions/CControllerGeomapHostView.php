@@ -37,7 +37,8 @@ class CControllerGeomapHostView extends CController {
 	}
 
 	protected function checkPermissions(): bool {
-		return $this->checkAccess(CRoleHelper::UI_MONITORING_HOSTS);
+		$permit_user_types = [USER_TYPE_ZABBIX_ADMIN, USER_TYPE_SUPER_ADMIN];         
+		return in_array($this->getUserType(), $permit_user_types);
 	}
 
 	protected function doAction(): void {
