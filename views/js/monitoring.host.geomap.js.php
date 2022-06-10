@@ -15,9 +15,11 @@
 	var SEVERITY_HIGH = 4;
 	var SEVERITY_DISASTER = 5;
 
-  $('head').append('<link rel="stylesheet" type="text/css" href="modules/zabbix-module-geomap/views/css/leaflet.css"/>');
+  $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>');
+  $('head').append('<link rel="stylesheet" type="text/css" href="modules/zabbix-module-geomap/views/css/style.css"/>');
   $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Leaflet/leaflet.js"/>');
   $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Leaflet/leaflet.markercluster.js"/>');
+
 
   var url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
   var data = <?php
@@ -50,8 +52,75 @@
   var severity_levels = val[0], icons = val[1];
 
   initMarker(severity_levels, icons, data, map, ["-1","0","1","2","3","4","5"]);
-  initFilter(map, severity_levels);  
+  initFilter(map, severity_levels);
+  initSearchBar(map); 
+  
+  
+  function search(){
+    var saisie=document.getElementById("input").value;
+    for(var i=0; i<data.length; i++){
+      var name = data[i]['name']
+      if(name.toLowerCase()==saisie.toLowerCase()){
+        document.getElementById("input").value = ''
+        map.setView([data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon']], 14)
+      }
+    }
+  }
 
+  function initSearchBar(map){
+    L.Control.searchControlControl = L.Control.extend({
+
+    initialize: function({data}) {
+      this._data = data;
+    },
+
+    onAdd: function(map) {
+      const div = L.DomUtil.create('div', 'example');
+      const input = L.DomUtil.create('input', 'searchInput', div);
+      var datalist = L.DomUtil.create('datalist', '', div);
+      const btn = L.DomUtil.create('button', 'searchButton', div);
+      const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
+      div.setAttribute('id', 'example')
+
+      btn.setAttribute('title', 'Search host');
+      btn.setAttribute('id', 'searchButton')
+
+      input.setAttribute('type', 'text')
+      input.setAttribute('id', 'input')
+      input.setAttribute('placeholder', 'Search host...')
+      input.setAttribute('list', 'hosts')
+      input.setAttribute('autocomplete', 'off')
+
+      datalist.setAttribute('id', 'hosts')
+      datalist.id="hosts"      
+
+      for (var i=0; i<this._data.length; ++i) {
+        const option = L.DomUtil.create('option', '', datalist);
+        option.value=this._data[i]['name']
+      }
+
+      L.DomEvent.on(btn, 'click', () => {search()});
+      input.addEventListener("keyup", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+          document.getElementById("searchButton").click();
+        }
+      });
+
+      return div;
+    },
+
+    });
+
+    L.control.searchControl = function(opts) {
+    return new L.Control.searchControlControl(opts);
+    };
+
+    map.searchFilterControl = L.control.searchControl({
+      position: 'topright',
+      data: data,
+    }).addTo(map);
+  }
   
   function initFilter(map, severity_levels){
     L.Control.severityControlControl = L.Control.extend({
@@ -92,23 +161,43 @@
           label.htmlFor = chBoxId;
         }
 
-        L.DomEvent.on(btn, 'click', () => {this.bar.classList.toggle('collapsed')});
-        L.DomEvent.on(this.bar, 'dblclick', (e) => {L.DomEvent.stopPropagation(e)});
+        L.DomEvent.on(btn, 'click', () => {
+          this.bar.classList.toggle('collapsed');
+          var targetDiv = document.getElementById("example");
+          if (targetDiv.style.display !== "none") {
+            targetDiv.style.display = "none";
+          }
+        });
+        L.DomEvent.on(this.bar, 'dblclick', (e) => {
+          L.DomEvent.stopPropagation(e);
+          var targetDiv = document.getElementById("example");
+          targetDiv.style.display = "block";
+        });
         L.DomEvent.on(div, 'change', () => {
           map.updateFilter([...this.bar.querySelectorAll('input[type="checkbox"]:checked')].map(n => n.value));
+
         });
       }
       else {
         div.classList.add('disabled');
+        var targetDiv = document.getElementById("example");
+        targetDiv.style.display = "block";
       }
 
-      L.DomEvent.on(btn, 'dblclick', (e) => {L.DomEvent.stopPropagation(e)});
+      L.DomEvent.on(btn, 'dblclick', (e) => {
+        L.DomEvent.stopPropagation(e);
+        var targetDiv = document.getElementById("example");
+        targetDiv.style.display = "block";
+      
+      });
 
       return div;
     },
 
     close: function() {
       this.bar.classList.remove('collapsed');
+      var targetDiv = document.getElementById("example");
+      targetDiv.style.display = "block";
     }
     });
 
@@ -126,6 +215,8 @@
     map.getContainer().addEventListener('click', (e) => {
     if (e.target.classList.contains('leaflet-container')) {
       map.severityFilterControl.close();
+      var targetDiv = document.getElementById("example");
+      targetDiv.style.display = "block";
     }
     }, false);
 
@@ -150,6 +241,11 @@
     map.setView(this.getLatLng(), 14);
   }
 
+  function onDoubleClickMarker(e) {
+    host = e.sourceTarget.options.hostVal
+    url = window.location.origin+window.location.pathname+"?name="+host['name']+"&action=host.view"
+    window.open(url, '_blank').focus();
+  }
 
   function initMarker(severity_levels, icons, data, map, severity_filter) {
     var marker_clusters = L.markerClusterGroup({
@@ -241,6 +337,7 @@
 
       if(severity_filter.includes(max_severity.toString())){
         const host = {
+          'id': data[i]['hostid'],
           'name': data[i]['name'],
           0: nb_not_classified,
           1: nb_information,
@@ -252,7 +349,7 @@
         
         const popup = makePopupContent([host], severity_levels)
         var m = L.marker( [data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon']], {icon: icons[max_severity], className: severity_levels.get(max_severity).classMarker, hostVal: host})
-                .bindPopup( popup ).on('click', onClickMarker);
+                .bindPopup( popup ).on('click', onClickMarker).on('dblclick', onDoubleClickMarker);
 
         m.on("mouseover", function(e){
           this.openPopup();
