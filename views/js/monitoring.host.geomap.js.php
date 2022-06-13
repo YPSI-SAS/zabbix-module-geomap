@@ -52,8 +52,9 @@
   var severity_levels = val[0], icons = val[1];
 
   initMarker(severity_levels, icons, data, map, ["-1","0","1","2","3","4","5"]);
-  initFilter(map, severity_levels);
   initSearchBar(map); 
+  initFilter(map, severity_levels);
+  
   
   
   function search(){
@@ -163,15 +164,9 @@
 
         L.DomEvent.on(btn, 'click', () => {
           this.bar.classList.toggle('collapsed');
-          var targetDiv = document.getElementById("example");
-          if (targetDiv.style.display !== "none") {
-            targetDiv.style.display = "none";
-          }
         });
         L.DomEvent.on(this.bar, 'dblclick', (e) => {
           L.DomEvent.stopPropagation(e);
-          var targetDiv = document.getElementById("example");
-          targetDiv.style.display = "block";
         });
         L.DomEvent.on(div, 'change', () => {
           map.updateFilter([...this.bar.querySelectorAll('input[type="checkbox"]:checked')].map(n => n.value));
@@ -180,15 +175,10 @@
       }
       else {
         div.classList.add('disabled');
-        var targetDiv = document.getElementById("example");
-        targetDiv.style.display = "block";
       }
 
       L.DomEvent.on(btn, 'dblclick', (e) => {
-        L.DomEvent.stopPropagation(e);
-        var targetDiv = document.getElementById("example");
-        targetDiv.style.display = "block";
-      
+        L.DomEvent.stopPropagation(e);      
       });
 
       return div;
