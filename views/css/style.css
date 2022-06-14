@@ -771,7 +771,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	border: 2px solid rgba(223, 228, 231, 0.4);
 	background-color: #ffffff;
 	padding: 10px 30px 5px 10px;
-	position: absolute;
 	margin-right: -2px;
 	margin-top: 5px;
 	display: none;
@@ -853,7 +852,6 @@ div.example::after {
 
 #example {
 	display: inline-block;
-	position: relative;
 	height: 60px;
 	float: right;
 	padding: 0;
@@ -917,4 +915,47 @@ div.example button {
 
 div.example button:hover {
 	opacity: 0.8;
+}
+
+.custom-select-perso {
+	position: relative;
+	z-index: 1;
+	right: 0;
+	top: 0;
+	width: 200px;
+	height: 60px;
+	color: black;
+	background-color: transparent;
+	border-radius: 30px;
+	border-color: black;
+	padding: 10px;
+}
+
+.custom-select-perso:hover {
+	background-color: white;
+}
+
+.select-top {
+	right: 10px;
+}
+
+.custom-button-perso {
+	height: 32px;
+	width: 32px;
+	color: black;
+	display: inline-block;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADNQTFRFU1NT9fX1lJSUXl5e1dXVfn5+c3Nz6urqv7+/tLS0iYmJqampn5+fysrK39/faWlp////Vi4ZywAAABF0Uk5T/////////////////////wAlrZliAAABLklEQVR42rSWWRbDIAhFHeOUtN3/ags1zaA4cHrKZ8JFRHwoXkwTvwGP1Qo0bYObAPwiLmbNAHBWFBZlD9j0JxflDViIObNHG/Do8PRHTJk0TezAhv7qloK0JJEBh+F8+U/hopIELOWfiZUCDOZD1RADOQKA75oq4cvVkcT+OdHnqqpQCITWAjnWVgGQUWz12lJuGwGoaWgBKzRVBcCypgUkOAoWgBX/L0CmxN40u6xwcIJ1cOzWYDffp3axsQOyvdkXiH9FKRFwPRHYZUaXMgPLeiW7QhbDRciyLXJaKheCuLbiVoqx1DVRyH26yb0hsuoOFEPsoz+BVE0MRlZNjGZcRQyHYkmMp2hBTIzdkzCTc/pLqOnBrk7/yZdAOq/q5NPBH1f7x7fGP4C3AAMAQrhzX9zhcGsAAAAASUVORK5CYII=) no-repeat, white;
+	background-size: 25px;
+	background-position: center;
+	text-indent: -10000px;
+	border: none;
+	position: relative;
+	top: 0;
+	right: 0;
+	z-index: 2;
+	cursor: pointer;
+	
 }

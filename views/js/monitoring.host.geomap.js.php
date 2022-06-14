@@ -18,14 +18,30 @@
   $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>');
   $('head').append('<link rel="stylesheet" type="text/css" href="modules/zabbix-module-geomap/views/css/style.css"/>');
   $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Leaflet/leaflet.js"/>');
+  $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Mask.js"/>');
+  $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Control.js"/>');
   $('head').append('<script type="text/javascript" src="modules/zabbix-module-geomap/views/js/Leaflet/leaflet.markercluster.js"/>');
 
+  var getJSON = function (url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function () {
+        var status = xhr.status;
+        if (status === 200) {
+          callback(null, xhr.response);
+        } else {
+          callback(status, xhr.response);
+        }
+    };
+    xhr.send();
+  };
 
   var url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-  var data = <?php
-		  echo json_encode($data['hosts']); ?>;
+  var data = <?php echo json_encode($data['hosts']); ?>;
+  var departments = [{name:"ALL DEPARTMENTS", code:"00"},{name:"ain", code:"01"}, {name:"aisne", code:"02"}, {name:"allier", code:"03"}, {name:"alpes-de-haute-provence", code:"04"}, {name:"hautes-alpes", code:"05"}, {name:"alpes-maritimes", code:"06"}, {name:"corse-du-sud", code:"2A"}, {name:"haute-corse", code:"2B"}, {name:"ardeche", code:"07"}, , {name:"ardennes", code:"08"}, , {name:"ariege", code:"09"}, {name:"aube", code:"10"}, {name:"aude", code:"11"}, {name:"aveyron", code:"12"}, {name:"bouches-du-rhone", code:"13"}, {name:"calvados", code:"14"}, {name:"cantal", code:"15"}, {name:"charente", code:"16"}, {name:"charente-maritime", code:"17"}, {name:"cher", code:"18"}, {name:"correze", code:"19"}, {name:"cote-d-or", code:"21"}, {name:"cotes-d-armor", code:"22"}, {name:"creuse", code:"23"}, {name:"dordogne", code:"24"}, {name:"doubs", code:"25"}, {name:"drome", code:"26"}, {name:"eure", code:"27"}, {name:"eure-et-loir", code:"28"}, {name:"finistere", code:"29"}, {name:"gard", code:"30"}, {name:"haute-garonne", code:"31"}, {name:"gers", code:"32"}, {name:"gironde", code:"33"}, {name:"herault", code:"34"}, {name:"ille-et-vilaine", code:"35"}, {name:"indre", code:"36"}, {name:"indre-et-loire", code:"37"}, {name:"isere", code:"38"}, {name:"jura", code:"39"}, {name:"landes", code:"40"}, {name:"loir-et-cher", code:"41"}, {name:"loire", code:"42"}, {name:"haute-loire", code:"43"}, {name:"loire-atlantique", code:"44"}, {name:"loiret", code:"45"}, {name:"lot", code:"46"}, {name:"lot-et-garonne", code:"47"}, {name:"lozere", code:"48"}, {name:"maine-et-loire", code:"49"}, {name:"manche", code:"50"}, {name:"marne", code:"51"}, {name:"haute-marne", code:"52"}, {name:"mayenne", code:"53"}, {name:"meurthe-et-moselle", code:"54"}, {name:"meuse", code:"55"}, {name:"morbihan", code:"56"}, {name:"moselle", code:"57"}, {name:"nievre", code:"58"}, {name:"nord", code:"59"}, {name:"oise", code:"60"}, {name:"orne", code:"61"}, {name:"pas-de-calais", code:"62"}, {name:"puy-de-dome", code:"63"}, {name:"pyrenees-atlantiques", code:"64"},, {name:"hautes-pyrenees", code:"65"}, {name:"pyrenees-orientales", code:"66"}, {name:"bas-rhin", code:"67"}, {name:"haut-rhin", code:"68"}, {name:"rhone", code:"69"}, {name:"haute-saone", code:"70"}, {name:"saone-et-loire", code:"71"}, {name:"sarthe", code:"72"}, {name:"savoie", code:"73"}, {name:"haute-savoie", code:"74"}, {name:"paris", code:"75"}, {name:"seine-maritime", code:"76"}, {name:"seine-et-marne", code:"77"}, {name:"yvelines", code:"78"}, {name:"deux-sevres", code:"79"}, {name:"somme", code:"80"}, {name:"tarn", code:"81"}, {name:"tarn-et-garonne", code:"82"}, {name:"var", code:"83"}, {name:"vaucluse", code:"84"}, {name:"vendee", code:"85"}, {name:"vienne", code:"86"}, {name:"haute-vienne", code:"87"}, {name:"vosges", code:"88"}, {name:"yonne", code:"89"}, {name:"territoire-de-belfort", code:"90"}, {name:"essonne", code:"91"}, {name:"hauts-de-seine", code:"92"}, {name:"seine-saint-denis", code:"93"}, {name:"val-de-marne", code:"94"}, {name:"val-d-oise", code:"95"}, {name:"guadeloupe", code:"971"}, {name:"martinique", code:"972"}, {name:"guyane", code:"973"}, {name:"la-reunion", code:"974"}, {name:"mayotte", code:"976"}];
     
-  var map = L.map('map').setView([46.2757268, 0.4013979],8 ); 
+  var map = L.map('map').setView([46.4336, 2.640771],6); 
     //'http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}'
   L.tileLayer( url , {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap  </a>&copy; <a href="https://www.ypsi.fr/">YPSI</a>',
@@ -51,11 +67,14 @@
   let val = initSeverities();
   var severity_levels = val[0], icons = val[1];
 
-  initMarker(severity_levels, icons, data, map, ["-1","0","1","2","3","4","5"]);
+  var department_selected = "00-ALL DEPARTMENTS";
+  var url_department_selected = "";
+  var severity_selected = ["-1","0","1","2","3","4","5"];
+
+  initMarker(severity_levels, icons, data, map, severity_selected);
   initSearchBar(map); 
+  initSelectDepartment(map, departments);
   initFilter(map, severity_levels);
-  
-  
   
   function search(){
     var saisie=document.getElementById("input").value;
@@ -69,54 +88,6 @@
   }
 
   function initSearchBar(map){
-    L.Control.searchControlControl = L.Control.extend({
-
-    initialize: function({data}) {
-      this._data = data;
-    },
-
-    onAdd: function(map) {
-      const div = L.DomUtil.create('div', 'example');
-      const input = L.DomUtil.create('input', 'searchInput', div);
-      var datalist = L.DomUtil.create('datalist', '', div);
-      const btn = L.DomUtil.create('button', 'searchButton', div);
-      const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
-      div.setAttribute('id', 'example')
-
-      btn.setAttribute('title', 'Search host');
-      btn.setAttribute('id', 'searchButton')
-
-      input.setAttribute('type', 'text')
-      input.setAttribute('id', 'input')
-      input.setAttribute('placeholder', 'Search host...')
-      input.setAttribute('list', 'hosts')
-      input.setAttribute('autocomplete', 'off')
-
-      datalist.setAttribute('id', 'hosts')
-      datalist.id="hosts"      
-
-      for (var i=0; i<this._data.length; ++i) {
-        const option = L.DomUtil.create('option', '', datalist);
-        option.value=this._data[i]['name']
-      }
-
-      L.DomEvent.on(btn, 'click', () => {search()});
-      input.addEventListener("keyup", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.keyCode === 13) {
-          document.getElementById("searchButton").click();
-        }
-      });
-
-      return div;
-    },
-
-    });
-
-    L.control.searchControl = function(opts) {
-    return new L.Control.searchControlControl(opts);
-    };
-
     map.searchFilterControl = L.control.searchControl({
       position: 'topright',
       data: data,
@@ -124,77 +95,6 @@
   }
   
   function initFilter(map, severity_levels){
-    L.Control.severityControlControl = L.Control.extend({
-
-    _severity_levels: null,
-    _filter_checked: [],
-
-    initialize: function({checked, severity_levels, disabled}) {
-      this._filter_checked = checked;
-      this._severity_levels = severity_levels;
-      this._disabled = disabled;
-    },
-
-    onAdd: function(map) {
-      const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-      const btn = L.DomUtil.create('a', 'geomap-filter-button', div);
-      this.bar = L.DomUtil.create('ul', 'checkbox-list geomap-filter', div);
-
-      btn.ariaLabel = t('Severity filter');
-      btn.title = t('Severity filter');
-      btn.role = 'button';
-      btn.href = '#';
-
-      if (!this._disabled) {
-        for (const [severity, prop] of this._severity_levels) {
-          const li = L.DomUtil.create('li', '', this.bar);
-          const chbox = L.DomUtil.create('input', '', li);
-          const label = L.DomUtil.create('label', '', li);
-          const span = L.DomUtil.create('span', '');
-          const chBoxId = 'filter_severity_' + map.elmntCounter();
-
-          label.append(span, document.createTextNode(prop.name));
-          chbox.checked = this._filter_checked.includes(severity.toString(10));
-          chbox.classList.add('checkbox-radio');
-          chbox.type = 'checkbox';
-          chbox.value = severity;
-          chbox.id = chBoxId;
-          label.htmlFor = chBoxId;
-        }
-
-        L.DomEvent.on(btn, 'click', () => {
-          this.bar.classList.toggle('collapsed');
-        });
-        L.DomEvent.on(this.bar, 'dblclick', (e) => {
-          L.DomEvent.stopPropagation(e);
-        });
-        L.DomEvent.on(div, 'change', () => {
-          map.updateFilter([...this.bar.querySelectorAll('input[type="checkbox"]:checked')].map(n => n.value));
-
-        });
-      }
-      else {
-        div.classList.add('disabled');
-      }
-
-      L.DomEvent.on(btn, 'dblclick', (e) => {
-        L.DomEvent.stopPropagation(e);      
-      });
-
-      return div;
-    },
-
-    close: function() {
-      this.bar.classList.remove('collapsed');
-      var targetDiv = document.getElementById("example");
-      targetDiv.style.display = "block";
-    }
-    });
-
-    L.control.severityControl = function(opts) {
-    return new L.Control.severityControlControl(opts);
-    };
-
     map.severityFilterControl = L.control.severityControl({
       position: 'topright',
       checked: [],
@@ -205,26 +105,67 @@
     map.getContainer().addEventListener('click', (e) => {
     if (e.target.classList.contains('leaflet-container')) {
       map.severityFilterControl.close();
-      var targetDiv = document.getElementById("example");
-      targetDiv.style.display = "block";
     }
-    }, false);
-
-    map.getContainer().addEventListener('filter', (e) => {
-      if(e.detail.length == 0){
-        updateMap(["-1","0","1","2","3","4","5"])
-      }else{
-        updateMap(e.detail)
-      }
-      
     }, false);
   }
 
-  function updateMap(severity_filter){
+  function initSelectDepartment(map, departments){
+    map.departmentFilterControl = L.control.departmentControl({
+      position: 'topright',
+      departments: departments,
+      disabled: false
+    }).addTo(map);
+  }
+
+  function chooseDepartment(){
+    department_selected=document.getElementById("select-dep").value;
+    default_val = departments[0].code+"-"+departments[0].name
+    if(department_selected != default_val){
+      url_department_selected = "modules/zabbix-module-geomap/resources/departements/".concat('', department_selected.concat('',"/departement-".concat("",department_selected.concat("",".geojson"))));
+    }
+    updateMap();
+  }
+
+
+  function setDepartment(){
+    if(department_selected != (departments[0].code+"-"+departments[0].name)){
+      getJSON(url_department_selected, function (err, values) {
+        if (err !== null) {
+          console.log(err)
+          console.log('Something went wrong: ' + err);
+        } else {
+          showDeptGeoJSON(values);
+        }
+      });
+    }else{
+      showDeptGeoJSON(null);
+    }   
+  }
+  
+  function showDeptGeoJSON(values) {
+    var latLngs=[];
+    if(values!=null){
+      var dept = new L.geoJSON(values, options).addTo(map);
+      latLngs.push(dept.getLayers()[0].getLatLngs());
+      L.mask(latLngs).addTo(map);
+      var object = latLngs[0][0][0];
+      if(Array.isArray(object)){
+        object = object[0];
+      }
+      map.setView(new L.LatLng(object.lat, object.lng), 8)
+    }else{
+      L.maskReset(latLngs).addTo(map);
+      map.setView([46.4336, 2.640771],6);
+    }
+      
+  }
+
+  function updateMap(){
     map.eachLayer(function (layer) {
         if (url != layer._url){map.removeLayer(layer)};
     });
-    initMarker(severity_levels, icons, data, map, severity_filter);
+    setDepartment();
+    initMarker(severity_levels, icons, data, map, severity_selected);
   }
 
   function onClickMarker(e) {
@@ -237,7 +178,7 @@
     window.open(url, '_blank').focus();
   }
 
-  function initMarker(severity_levels, icons, data, map, severity_filter) {
+  function initMarker(severity_levels, icons, data, map, severity_selected) {
     var marker_clusters = L.markerClusterGroup({
       iconCreateFunction: function(cluster){
         const markers = cluster.getAllChildMarkers();
@@ -325,7 +266,7 @@
         max_severity=-1;
       }
 
-      if(severity_filter.includes(max_severity.toString())){
+      if(severity_selected.includes(max_severity.toString())){
         const host = {
           'id': data[i]['hostid'],
           'name': data[i]['name'],

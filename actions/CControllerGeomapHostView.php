@@ -67,8 +67,10 @@ class CControllerGeomapHostView extends CController {
 			$index++;
 		}
 
+		
+
 		$data = [
-			'hosts' => $final_hosts,			
+			'hosts' => $final_hosts,
         ];
 
 		$response = new CControllerResponseData($data);
