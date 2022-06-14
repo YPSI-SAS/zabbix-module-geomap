@@ -141,6 +141,7 @@ L.Control.departmentControlControl = L.Control.extend({
         div.setAttribute('id', 'department');
         select.setAttribute('id', 'select-dep');
         btn.setAttribute('id', 'searchDepartment');
+        btn.setAttribute('title', 'Search department');
 
         L.DomEvent.on(btn, 'click', () => { chooseDepartment() });
 
@@ -168,4 +169,52 @@ L.Control.departmentControlControl = L.Control.extend({
 
 L.control.departmentControl = function (opts) {
     return new L.Control.departmentControlControl(opts);
+};
+
+L.Control.regionControlControl = L.Control.extend({
+
+    _regions: null,
+
+    initialize: function ({ regions, disabled }) {
+        this._regions = regions;
+        this._disabled = disabled;
+    },
+
+    onAdd: function (map) {
+        const div = L.DomUtil.create('div');
+        const select = L.DomUtil.create('select', 'custom-select-perso select-top', div);
+        const btn = L.DomUtil.create('button', 'custom-button-perso button-top', div);
+        const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
+
+        div.setAttribute('id', 'region');
+        select.setAttribute('id', 'select-region');
+        btn.setAttribute('id', 'searchRegion');
+        btn.setAttribute('title', 'Search region');
+
+        L.DomEvent.on(btn, 'click', () => { chooseRegion() });
+
+        regions.forEach(region => {
+            const option = L.DomUtil.create('option', '', select);
+            value = region.name;
+            option.value = value;
+            option.innerHTML = value;
+            if (region.name == "ALL REGIONS") {
+                option.setAttribute('selected', '');
+            }
+        });
+
+        L.DomEvent.on(btn, 'click', () => { chooseRegion() });
+        select.addEventListener("keyup", function (event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                document.getElementById("searchRegion").click();
+            }
+        });
+
+        return div;
+    },
+});
+
+L.control.regionControl = function (opts) {
+    return new L.Control.regionControlControl(opts);
 };
