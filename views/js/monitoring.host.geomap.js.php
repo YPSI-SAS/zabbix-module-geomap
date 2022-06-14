@@ -70,6 +70,7 @@
   var department_selected = "00-ALL DEPARTMENTS";
   var url_department_selected = "";
   var severity_selected = ["-1","0","1","2","3","4","5"];
+  var polygons = new Array();
 
   initMarker(severity_levels, icons, data, map, severity_selected);
   initSearchBar(map); 
@@ -147,25 +148,26 @@
     if(values!=null){
       var dept = new L.geoJSON(values, options).addTo(map);
       latLngs.push(dept.getLayers()[0].getLatLngs());
+      polygons = latLngs[0];
       L.mask(latLngs).addTo(map);
       var object = latLngs[0][0][0];
       if(Array.isArray(object)){
         object = object[0];
       }
-      map.setView(new L.LatLng(object.lat, object.lng), 8)
+      map.setView(new L.LatLng(object.lat, object.lng), 8);
     }else{
       L.maskReset(latLngs).addTo(map);
       map.setView([46.4336, 2.640771],6);
+      polygons = new Array();
     }
-      
+    initMarker(severity_levels, icons, data, map, severity_selected);
   }
 
   function updateMap(){
     map.eachLayer(function (layer) {
         if (url != layer._url){map.removeLayer(layer)};
     });
-    setDepartment();
-    initMarker(severity_levels, icons, data, map, severity_selected);
+    setDepartment(); 
   }
 
   function onClickMarker(e) {
@@ -177,6 +179,20 @@
     url = window.location.origin+window.location.pathname+"?name="+host['name']+"&action=host.view"
     window.open(url, '_blank').focus();
   }
+
+  function isMarkerInsidePolygon(x, y, poly) {
+    var inside = false;
+
+    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var xi = poly[i].lat, yi = poly[i].lng;
+        var xj = poly[j].lat, yj = poly[j].lng;
+
+        var intersect = ((yi > y) != (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+  };
 
   function initMarker(severity_levels, icons, data, map, severity_selected) {
     var marker_clusters = L.markerClusterGroup({
@@ -261,34 +277,54 @@
             break;
         }
       }
+
       var max_severity = Math.max(...list_severity)
       if(list_severity.length==0){
         max_severity=-1;
       }
 
       if(severity_selected.includes(max_severity.toString())){
-        const host = {
-          'id': data[i]['hostid'],
-          'name': data[i]['name'],
-          0: nb_not_classified,
-          1: nb_information,
-          2: nb_warning,
-          3: nb_average,
-          4: nb_high,
-          5: nb_disaster
+        var inside = false;
+        if(polygons.length != 0){
+          console.log(polygons)
+          for(var m=0; m<polygons.length; m++){
+            var poly = polygons[m];
+            if(Array.isArray(poly[0])){
+              poly = poly[0];
+            }
+            console.log(polygons[m])
+            if(isMarkerInsidePolygon(data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon'], poly)){
+              inside = true;
+            }
+          }
+        }else{
+          inside = true;
+        }
+        if(inside){
+          const host = {
+            'id': data[i]['hostid'],
+            'name': data[i]['name'],
+            0: nb_not_classified,
+            1: nb_information,
+            2: nb_warning,
+            3: nb_average,
+            4: nb_high,
+            5: nb_disaster
+          }
+
+          const popup = makePopupContent([host], severity_levels)
+          var m = L.marker( [data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon']], {icon: icons[max_severity], className: severity_levels.get(max_severity).classMarker, hostVal: host})
+                  .bindPopup( popup ).on('click', onClickMarker).on('dblclick', onDoubleClickMarker);
+
+          m.on("mouseover", function(e){
+            this.openPopup();
+          });
+          m.on("mouseout", function(e){
+            this.closePopup();
+          });
+          marker_clusters.addLayer(m);
         }
         
-        const popup = makePopupContent([host], severity_levels)
-        var m = L.marker( [data[i]['inventory']['location_lat'], data[i]['inventory']['location_lon']], {icon: icons[max_severity], className: severity_levels.get(max_severity).classMarker, hostVal: host})
-                .bindPopup( popup ).on('click', onClickMarker).on('dblclick', onDoubleClickMarker);
-
-        m.on("mouseover", function(e){
-          this.openPopup();
-        });
-        m.on("mouseout", function(e){
-          this.closePopup();
-        });
-        marker_clusters.addLayer(m);
       }
     }
 
@@ -488,7 +524,5 @@
 		});
     return [severity_levels, icons];
 	}
-
   
-
 </script>
