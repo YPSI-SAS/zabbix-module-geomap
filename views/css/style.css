@@ -810,43 +810,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	opacity: .4;
 }
 
-
-/* * {
-	box-sizing: border-box;
-} */
-
-/* Style the search field */
-/* div.example input[type=text] {
-	padding: 10px;
-	font-size: 10px;
-	border: 1px solid grey;
-	float: left;
-	width: 80%;
-	background: #f1f1f1;
-}
-
-
-div.example button {
-	float: left;
-	width: 20%;
-	padding: 10px;
-	background: #2196F3;
-	color: white;
-	font-size: 10px;
-	border: 1px solid grey;
-	border-left: none;
-	cursor: pointer;
-}
-
-div.example button:hover {
-	background: #0b7dda;
-}
-
-div.example::after {
-	content: "";
-	clear: both;
-	display: table;
-} */
 @import url(https://fonts.googleapis.com/css?family=Lato:100,300,400,700);
 @import url(https://raw.github.com/FortAwesome/Font-Awesome/master/docs/assets/css/font-awesome.min.css);
 
@@ -928,11 +891,8 @@ div.example button:hover {
 	background-color: transparent;
 	border-radius: 30px;
 	border-color: black;
-	padding: 10px;
-}
-
-.custom-select-perso:hover {
 	background-color: white;
+	padding: 10px;
 }
 
 .select-top {
@@ -957,5 +917,20 @@ div.example button:hover {
 	right: 0;
 	z-index: 2;
 	cursor: pointer;
-	
+}
+
+.button-clear {
+	height: 32px;
+	width: auto;
+	background-color: white;
+	display: inline-block;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	border: none;
+	position: relative;
+	top: 0;
+	right: 0;
+	z-index: 2;
+	cursor: pointer;
 }

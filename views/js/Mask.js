@@ -1,3 +1,6 @@
+/**
+ * Create transparent mask for all map outer bounds 
+ */
 L.Mask = L.Polygon.extend({
     options: {
         stroke: false,
@@ -19,6 +22,13 @@ L.Mask = L.Polygon.extend({
 
 });
 
+L.mask = function (latLngs, options) {
+    return new L.Mask(latLngs, options);
+};
+
+/**
+ * Create mask to delete opacity for all map outer bounds
+ */
 L.MaskReset = L.Polygon.extend({
     options: {
         stroke: false,
@@ -38,10 +48,6 @@ L.MaskReset = L.Polygon.extend({
     }
 
 });
-
-L.mask = function (latLngs, options) {
-    return new L.Mask(latLngs, options);
-};
 
 L.maskReset = function (latLngs, options) {
     return new L.MaskReset(latLngs, options);
