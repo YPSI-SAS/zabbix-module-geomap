@@ -61,6 +61,7 @@
   //Url for geojson file for selected region
   var url_region_selected = "";
 
+  //Save if region or department set in last
   var last_element_choose = "";
 
   //List of all severity selected
@@ -98,12 +99,19 @@
   var severity_levels = val[0], icons = val[1];
 
   //Initialize all elements on a map
-  initMarker();
+
   initSearchBar(map); 
   initSelectDepartment(map, departments);
   initSelectRegion(map, regions);
   initClearDepartmentAndRegion(map);
   initFilter(map, severity_levels);
+  //If file for mask store in cache
+  if(localStorage['url_file'] != "" && localStorage['url_file'] != undefined){
+    setMaskOnMap(localStorage['url_file']);
+  }else{
+    initMarker();
+  }
+  
   
   /**
    * Search the host ask by user in search bar
@@ -159,9 +167,14 @@
    * @param {Array} departments
    */
   function initSelectDepartment(map, departments){
+    //If department store in cache
+    if(localStorage['department_selected'] != "" && localStorage['department_selected'] != undefined){
+      department_selected = localStorage['department_selected'];
+    }
     map.departmentFilterControl = L.control.departmentControl({
       position: 'topright',
       departments: departments,
+      department_selected: department_selected,
     }).addTo(map);
   }
 
@@ -171,9 +184,14 @@
    * @param {Array} regions
    */
   function initSelectRegion(map, regions){
+    //If region store in cache
+    if(localStorage['region_selected'] != "" && localStorage['region_selected'] != undefined){
+      region_selected = localStorage['region_selected'];
+    }
     map.regionFilterControl = L.control.regionControl({
       position: 'topright',
       regions: regions,
+      region_selected: region_selected,
     }).addTo(map);
   }
 
@@ -195,6 +213,8 @@
     url_department_selected = "";
     document.getElementById("select-dep").value = departments[0].code+"-"+departments[0].name;
     document.getElementById("select-region").value = regions[0].name;
+    department_selected = departments[0].code+"-"+departments[0].name;
+    region_selected = regions[0].name;
     updateMap();
     map.setView([46.4336, 2.640771],6);
   }
@@ -293,6 +313,10 @@
     }else if(last_element_choose =="region"){
       url_file = url_region_selected;
     }
+    //Values storage in cache to conserve user preference
+    localStorage['url_file'] = url_file;
+    localStorage['department_selected'] = department_selected;
+    localStorage['region_selected'] = region_selected;
     setMaskOnMap(url_file); 
   }
 

@@ -160,8 +160,9 @@ L.Control.departmentControlControl = L.Control.extend({
      * Initialize control with departments array and if it is disable
      * @param {*} param0 
      */
-    initialize: function ({ departments }) {
+    initialize: function ({ departments, department_selected }) {
         this._departments = departments;
+        this._department_selected = department_selected;
     },
 
     /**
@@ -185,12 +186,12 @@ L.Control.departmentControlControl = L.Control.extend({
         L.DomEvent.on(btn, 'click', () => { getFileDepartment() });
 
         //Create one option for each department
-        departments.forEach(department => {
+        this._departments.forEach(department => {
             const option = L.DomUtil.create('option', '', select);
             value = department.code + "-" + department.name;
             option.value = value;
             option.innerHTML = value;
-            if (department.code == "00") {
+            if (value == this._department_selected) {
                 option.setAttribute('selected', '');
             }
         });
@@ -223,8 +224,9 @@ L.Control.regionControlControl = L.Control.extend({
      * Initialize control with regions array and if it is disable
      * @param {*} param0 
      */
-    initialize: function ({ regions }) {
+    initialize: function ({ regions, region_selected }) {
         this._regions = regions;
+        this._region_selected = region_selected;
     },
 
     /**
@@ -248,12 +250,12 @@ L.Control.regionControlControl = L.Control.extend({
         L.DomEvent.on(btn, 'click', () => { getFileRegion() });
 
         //Create one option for each region
-        regions.forEach(region => {
+        this._regions.forEach(region => {
             const option = L.DomUtil.create('option', '', select);
             value = region.name;
             option.value = value;
             option.innerHTML = value;
-            if (region.name == "ALL REGIONS") {
+            if (region.name == this._region_selected) {
                 option.setAttribute('selected', '');
             }
         });
