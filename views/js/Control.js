@@ -152,134 +152,6 @@ L.control.severityControl = function (opts) {
 };
 
 /**
- * Create new control to make department filter
- */
-L.Control.departmentControlControl = L.Control.extend({
-
-    /**
-     * Initialize control with departments array and if it is disable
-     * @param {*} param0 
-     */
-    initialize: function ({ departments, department_selected }) {
-        this._departments = departments;
-        this._department_selected = department_selected;
-    },
-
-    /**
-     * Add elements to filter in document
-     * @param {*} map 
-     * @returns 
-     */
-    onAdd: function (map) {
-        //Create differents HTML tags and set attributes
-        const div = L.DomUtil.create('div');
-        const select = L.DomUtil.create('select', 'custom-select-perso select-top', div);
-        const btn = L.DomUtil.create('button', 'custom-button-perso button-top', div);
-        const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
-
-        div.setAttribute('id', 'department');
-        select.setAttribute('id', 'select-dep');
-        btn.setAttribute('id', 'getFileDepartment');
-        btn.setAttribute('title', 'Search department');
-
-        //Assign getFileDepartment action on button if clicked
-        L.DomEvent.on(btn, 'click', () => { getFileDepartment() });
-
-        //Create one option for each department
-        this._departments.forEach(department => {
-            const option = L.DomUtil.create('option', '', select);
-            value = department.code + "-" + department.name;
-            option.value = value;
-            option.innerHTML = value;
-            if (value == this._department_selected) {
-                option.setAttribute('selected', '');
-            }
-        });
-
-        select.addEventListener('change', () => {
-            document.getElementById("getFileDepartment").click();
-        });
-
-        select.addEventListener("keyup", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
-            if (event.keyCode === 13) {
-                document.getElementById("getFileDepartment").click();
-            }
-        });
-
-        return div;
-    },
-});
-
-L.control.departmentControl = function (opts) {
-    return new L.Control.departmentControlControl(opts);
-};
-
-/**
- * Create new control to make region filter
- */
-L.Control.regionControlControl = L.Control.extend({
-
-    /**
-     * Initialize control with regions array and if it is disable
-     * @param {*} param0 
-     */
-    initialize: function ({ regions, region_selected }) {
-        this._regions = regions;
-        this._region_selected = region_selected;
-    },
-
-    /**
-     * Add elements to filter in document
-     * @param {*} map 
-     * @returns 
-     */
-    onAdd: function (map) {
-        //Create differents HTML tags and set attributes
-        const div = L.DomUtil.create('div');
-        const select = L.DomUtil.create('select', 'custom-select-perso select-top', div);
-        const btn = L.DomUtil.create('button', 'custom-button-perso button-top', div);
-        const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
-
-        div.setAttribute('id', 'region');
-        select.setAttribute('id', 'select-region');
-        btn.setAttribute('id', 'getFileRegion');
-        btn.setAttribute('title', 'Search region');
-
-        //Assign getFileRegion action on button if clicked
-        L.DomEvent.on(btn, 'click', () => { getFileRegion() });
-
-        //Create one option for each region
-        this._regions.forEach(region => {
-            const option = L.DomUtil.create('option', '', select);
-            value = region.name;
-            option.value = value;
-            option.innerHTML = value;
-            if (region.name == this._region_selected) {
-                option.setAttribute('selected', '');
-            }
-        });
-
-        select.addEventListener('change', () => {
-            document.getElementById("getFileRegion").click();
-        });
-
-        select.addEventListener("keyup", function (event) {
-            // Number 13 is the "Enter" key on the keyboard
-            if (event.keyCode === 13) {
-                document.getElementById("getFileRegion").click();
-            }
-        });
-
-        return div;
-    },
-});
-
-L.control.regionControl = function (opts) {
-    return new L.Control.regionControlControl(opts);
-};
-
-/**
  * Create new control to make clear button
  */
 L.Control.clearControlControl = L.Control.extend({
@@ -302,12 +174,12 @@ L.Control.clearControlControl = L.Control.extend({
 
         div.setAttribute('id', 'clear');
         input.setAttribute('id', 'clearFilter');
-        input.setAttribute('title', 'Clear department/region');
+        input.setAttribute('title', 'Clear select limit');
         input.setAttribute('type', 'button');
-        input.setAttribute('value', 'Clear department and region');
+        input.setAttribute('value', 'Clear limit');
 
         //Assign clearDepartmentAndRegion action on button if clicked
-        L.DomEvent.on(input, 'click', () => { clearDepartmentAndRegion() });
+        L.DomEvent.on(input, 'click', () => { clearLimit() });
 
         return div;
     },
@@ -315,4 +187,134 @@ L.Control.clearControlControl = L.Control.extend({
 
 L.control.clearControl = function (opts) {
     return new L.Control.clearControlControl(opts);
+};
+
+/**
+ * Create new control to make country filter
+ */
+L.Control.countryControlControl = L.Control.extend({
+
+    /**
+     * Initialize control with countries array and if it is disable
+     * @param {*} param0 
+     */
+    initialize: function ({ countries, country_selected }) {
+        this._countries = countries;
+        this._country_selected = country_selected;
+    },
+
+    /**
+     * Add elements to filter in document
+     * @param {*} map 
+     * @returns 
+     */
+    onAdd: function (map) {
+        //Create differents HTML tags and set attributes
+        const div = L.DomUtil.create('div');
+        const select = L.DomUtil.create('select', 'custom-select-perso select-top', div);
+        const btn = L.DomUtil.create('button', 'custom-button-perso button-top', div);
+        const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
+
+        div.setAttribute('id', 'country');
+        select.setAttribute('id', 'select-country');
+        btn.setAttribute('id', 'getCountry');
+        btn.setAttribute('title', 'Search country');
+
+        //Assign getCountry action on button if clicked
+        L.DomEvent.on(btn, 'click', () => { getCountry() });
+
+        //Create one option for each country
+        this._countries.forEach(country => {
+            const option = L.DomUtil.create('option', '', select);
+            value = country.name;
+            option.value = value;
+            option.innerHTML = value;
+            if (country.name == this._country_selected) {
+                option.setAttribute('selected', '');
+            }
+        });
+
+        select.addEventListener('change', () => {
+            document.getElementById("getCountry").click();
+        });
+
+        select.addEventListener("keyup", function (event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                document.getElementById("getCountry").click();
+            }
+        });
+
+        return div;
+    },
+});
+
+L.control.countryControl = function (opts) {
+    return new L.Control.countryControlControl(opts);
+};
+
+/**
+ * Create new control to make limit filter
+ */
+L.Control.limitControlControl = L.Control.extend({
+
+    /**
+     * Initialize control with limits array and if it is disable
+     * @param {*} param0 
+     */
+    initialize: function ({ limits, limit_selected, default_limit, type }) {
+        this._limits = limits;
+        this._limit_selected = limit_selected;
+        this._default_limit = default_limit;
+        this._type = type;
+    },
+
+    /**
+     * Add elements to filter in document
+     * @param {*} map 
+     * @returns 
+     */
+    onAdd: function (map) {
+        //Create differents HTML tags and set attributes
+        const div = L.DomUtil.create('div');
+        const select = L.DomUtil.create('select', 'custom-select-perso select-top', div);
+        const btn = L.DomUtil.create('button', 'custom-button-perso button-top', div);
+        const ibalise = L.DomUtil.create('i', 'fa fa-search', btn);
+
+        div.setAttribute('id', 'limit');
+        select.setAttribute('id', 'select-limit-' + this._type);
+        btn.setAttribute('id', 'getLimit' + this._type);
+
+        //Assign limit action on button if clicked
+        L.DomEvent.on(btn, 'click', () => {
+            value = document.getElementById("select-limit-" + this._type).value;
+            getFileGeoJson(this._type, this._default_limit, value);
+        });
+        //Create one option for each limit
+        this._limits.forEach(limit => {
+            const option = L.DomUtil.create('option', '', select);
+            option.value = limit;
+            option.innerHTML = limit;
+            if (limit == this._limit_selected) {
+                option.setAttribute('selected', '');
+            }
+        });
+
+        select.addEventListener('change', () => {
+            document.getElementById("getLimit" + this._type).click();
+        });
+
+        select.addEventListener("keyup", function (event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                document.getElementById("getLimit" + this._type).click();
+            }
+        });
+
+        return div;
+    },
+});
+
+L.control.limitControl = function (opts) {
+    return new L.Control.limitControlControl(opts);
 };
