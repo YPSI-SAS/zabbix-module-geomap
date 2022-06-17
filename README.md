@@ -18,3 +18,13 @@ How to install :
 * Use the Scan directory button on the top right
 * Enable the module
 * Go to Monitoring > Geomap
+
+## Add new country and filter
+You can add a new country and a new filter for this country simply. For my example, I choose to explain how create a new filter for country **Italie** and filter **department** </br>
+To create a new country:
+* Create a new directory named **Italie** in zabbix-module-geomap/resources
+
+To create a new filters like department or region or other for exemple:
+* Create a new directory named **department** in zabbix-module-geomap/resources/Italie
+
+And you must add all GeoJson files in this directory. The name of GeoJson file will be the name which appears in possible option in the filter.
