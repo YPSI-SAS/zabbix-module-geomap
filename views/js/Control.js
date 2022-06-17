@@ -71,10 +71,11 @@ L.Control.severityControlControl = L.Control.extend({
      * Initialize control with checked array, severity array and if it is disable
      * @param {*} param0 
      */
-    initialize: function ({ checked, severity_levels, disabled }) {
+    initialize: function ({ checked, severity_levels, disabled, severity_selected }) {
         this._filter_checked = checked;
         this._severity_levels = severity_levels;
         this._disabled = disabled;
+        this._severity_selected = severity_selected;
     },
 
     /**
@@ -103,22 +104,27 @@ L.Control.severityControlControl = L.Control.extend({
                 const chBoxId = 'filter_severity_' + map.elmntCounter();
 
                 label.append(span, document.createTextNode(prop.name));
-                chbox.checked = this._filter_checked.includes(severity.toString(10));
                 chbox.classList.add('checkbox-radio');
                 chbox.type = 'checkbox';
                 chbox.value = severity;
                 chbox.id = chBoxId;
                 label.htmlFor = chBoxId;
 
+                if (this._severity_selected.length != 14 && this._severity_selected.includes(severity)) {
+                    chbox.checked = true;
+                }
+
                 //If checkbox changes update MAP
                 chbox.addEventListener('change', () => {
                     var detail = [...this.bar.querySelectorAll('input[type="checkbox"]:checked')].map(n => n.value)
                     if (detail.length == 0) {
-                        severity_selected = ["-1", "0", "1", "2", "3", "4", "5"]
-                        updateMap()
+                        var severities = ["-1", "0", "1", "2", "3", "4", "5"];
+                        severity_selected = severities;
+                        updateMap();
                     } else {
-                        severity_selected = detail
-                        updateMap()
+                        var severities = detail;
+                        severity_selected = severities;
+                        updateMap();
                     }
                 });
             }

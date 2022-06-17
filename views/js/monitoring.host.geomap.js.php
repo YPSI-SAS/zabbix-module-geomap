@@ -62,6 +62,10 @@
 
   //List of all severity selected
   var severity_selected = ["-1","0","1","2","3","4","5"];
+  //If severity selected store in cache
+  if(localStorage['severity_selected'] != "" && localStorage['severity_selected'] != undefined){
+    severity_selected = localStorage['severity_selected'];
+  }
 
   //List of polygons corresponding to department or region selected
   var polygons = new Array();
@@ -172,7 +176,8 @@
       position: 'topright',
       checked: [],
       severity_levels: severity_levels,
-      disabled: false
+      disabled: false, 
+      severity_selected: severity_selected,
     }).addTo(map);
 
     map.getContainer().addEventListener('click', (e) => {
@@ -198,24 +203,26 @@
     for(var i=0; i<geofiles.length; i++){
       //Get all limits available for country selected
       if(geofiles[i].name==country_selected){
-        for(var j=0; j<geofiles[i]['limits'].length; j++){
-          var type = geofiles[i]['limits'][j]['name'];
-          var values = geofiles[i]['limits'][j]['values'];
-          var default_value = geofiles[i]['limits'][j]['default'];
+        if(geofiles[i]['limits'] != undefined){
+          for(var j=0; j<geofiles[i]['limits'].length; j++){
+            var type = geofiles[i]['limits'][j]['name'];
+            var values = geofiles[i]['limits'][j]['values'];
+            var default_value = geofiles[i]['limits'][j]['default'];
 
-          //Create a control element
-          map.limitFilterControl = L.control.limitControl({
-            position: 'topright',
-            limits: values,
-            limit_selected: default_value,
-            default_limit: default_value,
-            type: type
-          }).addTo(map);
+            //Create a control element
+            map.limitFilterControl = L.control.limitControl({
+              position: 'topright',
+              limits: values,
+              limit_selected: default_value,
+              default_limit: default_value,
+              type: type
+            }).addTo(map);
 
-          //Add filter in list to reset it after
-          limit_filter.push({id: "select-limit-"+type, default: default_value})
-          limit_control.push(map.limitFilterControl)
-        }        
+            //Add filter in list to reset it after
+            limit_filter.push({id: "select-limit-"+type, default: default_value})
+            limit_control.push(map.limitFilterControl)
+          }  
+        }      
       }
     }
     initClearLimit(map);
@@ -488,6 +495,9 @@
       if(list_severity.length==0){
         max_severity=-1;
       }
+
+      //Store severity selected in cache
+      localStorage['severity_selected'] = severity_selected;
 
       //if the most important severity is in severity selected by the user
       if(severity_selected.includes(max_severity.toString())){

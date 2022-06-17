@@ -768,6 +768,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 
 .geomap-filter {
+	position: relative;
 	border: 2px solid rgba(223, 228, 231, 0.4);
 	background-color: #ffffff;
 	padding: 10px 30px 5px 10px;
