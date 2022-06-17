@@ -174,7 +174,6 @@
   function initFilter(map, severity_levels){
     map.severityFilterControl = L.control.severityControl({
       position: 'topright',
-      checked: [],
       severity_levels: severity_levels,
       disabled: false, 
       severity_selected: severity_selected,

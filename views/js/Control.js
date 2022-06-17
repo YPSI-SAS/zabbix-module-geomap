@@ -68,11 +68,10 @@ L.control.searchControl = function (opts) {
 L.Control.severityControlControl = L.Control.extend({
 
     /**
-     * Initialize control with checked array, severity array and if it is disable
+     * Initialize control with  severity array, if it is disable and severity_selected array
      * @param {*} param0 
      */
-    initialize: function ({ checked, severity_levels, disabled, severity_selected }) {
-        this._filter_checked = checked;
+    initialize: function ({ severity_levels, disabled, severity_selected }) {
         this._severity_levels = severity_levels;
         this._disabled = disabled;
         this._severity_selected = severity_selected;
