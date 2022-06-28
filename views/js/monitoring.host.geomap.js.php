@@ -147,8 +147,6 @@
         limit_filter.forEach(limit =>{
           document.getElementById(limit.id).value = limit.default;
         });
-        limit_filter = [];
-
         updateMap();
         map.setView([hosts[i]['inventory']['location_lat'], hosts[i]['inventory']['location_lon']], 14)
       }
@@ -263,7 +261,6 @@
     limit_filter.forEach(limit =>{
       document.getElementById(limit.id).value = limit.default;
     });
-    limit_filter = [];
     updateMap();
     map.setView([46.4336, 2.640771],6);
   }
