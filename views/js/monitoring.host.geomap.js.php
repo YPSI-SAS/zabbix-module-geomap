@@ -147,6 +147,8 @@
         limit_filter.forEach(limit =>{
           document.getElementById(limit.id).value = limit.default;
         });
+        severity_selected = ["-1","0","1","2","3","4","5"];
+        clearSeverityFilter();
         updateMap();
         map.setView([hosts[i]['inventory']['location_lat'], hosts[i]['inventory']['location_lon']], 14)
       }
@@ -182,6 +184,15 @@
       map.severityFilterControl.close();
     }
     }, false);
+  }
+  
+   /**
+   * Clear all severity filter selected when user make a search
+   */
+  function clearSeverityFilter() {
+    for (let index = 1; index < 8; index++) {
+      document.getElementById("filter_severity_" + index.toString()).checked = false;
+    }
   }
 
   /**
