@@ -12,7 +12,7 @@ The goal of this module is to provide an interactive geographical map with hosts
 ## Installation
 How to install :
 * Go to your zabbix frontend installation (default: /usr/share/zabbix/modules)
-* Clone the project : git clone https://gitlab.ypsi.cloud/melissa.bertin/zabbix-module-geomap.git
+* Clone the project : git clone [https://github.com/YPSI-SAS/zabbix-module-geomap.git](https://github.com/YPSI-SAS/zabbix-module-geomap.git)
 * Change the owner of directory to your web user if necessary
 * Go to your web Zabbix interface in : Administration > General > Modules
 * Use the Scan directory button on the top right
